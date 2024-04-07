@@ -1,0 +1,98 @@
+version: '3.6'
+
+services:
+  rabbitmq001:
+    # 镜像名称
+    image: rabbitmq:management
+    # 容器名称
+    container_name: rabbitmqCluster001
+    # 主机名称
+    hostname: rabbitmq001
+    # 赋予权限
+    privileged: true
+    # 环境变量
+    environment:
+      - RABBITMQ_ERLANG_COOKIE="rabbitmqCookie"
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin
+    # 挂载设置
+    volumes:
+      - ./cluster/001/config:/var/lib/rabbitmq/config
+      - ./cluster/001/mnesia:/var/lib/rabbitmq/mnesia
+      - ./cluster/001/schema:/var/lib/rabbitmq/schema
+    # 端口设置
+    ports:
+      - 5672:5672
+      - 15672:15672
+    networks:
+      default:
+        ipv4_address: 172.19.0.2
+  rabbitmq002:
+    # 镜像名称
+    image: rabbitmq:management
+    # 容器名称
+    container_name: rabbitmqCluster002
+    # 主机名称
+    hostname: rabbitmq002
+    # 赋予权限
+    privileged: true
+    # 环境变量
+    environment:
+      - RABBITMQ_ERLANG_COOKIE="rabbitmqCookie"
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin
+    # 挂载设置
+    volumes:
+      - ./cluster/002/config:/var/lib/rabbitmq/config
+      - ./cluster/002/mnesia:/var/lib/rabbitmq/mnesia
+      - ./cluster/002/schema:/var/lib/rabbitmq/schema
+    # 端口设置
+    ports:
+      - 5673:5672
+      - 15673:15672
+    # SERVICE:ALIAS
+    links:
+      - rabbitmq001
+    depends_on:
+      - rabbitmq001
+    networks:
+      default:
+        ipv4_address: 172.19.0.3
+  rabbitmq003:
+    # 镜像名称
+    image: rabbitmq:management
+    # 容器名称
+    container_name: rabbitmqCluster003
+    # 主机名称
+    hostname: rabbitmq003
+    # 赋予权限
+    privileged: true
+    # 环境变量
+    environment:
+      - RABBITMQ_ERLANG_COOKIE="rabbitmqCookie"
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin
+    # 挂载设置
+    volumes:
+      - ./cluster/003/config:/var/lib/rabbitmq/config
+      - ./cluster/003/mnesia:/var/lib/rabbitmq/mnesia
+      - ./cluster/003/schema:/var/lib/rabbitmq/schema
+    # 端口设置
+    ports:
+      - 5674:5672
+      - 15674:15672
+    links:
+      - rabbitmq001
+      - rabbitmq002
+    depends_on:
+      - rabbitmq001
+      - rabbitmq002
+    networks:
+      default:
+        ipv4_address: 172.19.0.4
+networks:
+  default:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: "172.19.0.0/24"
